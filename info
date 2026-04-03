@@ -1,0 +1,833 @@
+chase@Tits:~$ # hardware & session
+uname -a
+cat /proc/cmdline
+lsb_release -a || cat /etc/fedora-release
+echo "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"
+
+# GPU & drivers
+lspci -nn | grep -iE 'vga|3d'
+nvidia-smi -q 2>/dev/null || true
+modinfo nvidia 2>/dev/null || true
+
+# logs
+dmesg | tail -n 200
+journalctl -b -n 200 --no-pager
+journalctl -b _COMM=kwin_wayland -n 200 --no-pager
+journalctl -b -u sddm -n 200 --no-pager
+
+# KWin output config
+ls -l ~/.config/kwinoutputconfig.json
+cat ~/.config/kwinoutputconfig.json 2>/dev/null | tail -n 50
+
+# DPMS / power
+loginctl show-session $(loginctl | awk '/seat0/ {print $1; exit}') -p Inhibitors || true
+systemctl --user status plasma-powerdevil.service || true
+Linux Tits 6.19.10-200.fc43.x86_64 #1 SMP PREEMPT_DYNAMIC Wed Mar 25 16:09:19 UTC 2026 x86_64 GNU/Linux
+BOOT_IMAGE=(hd7,gpt2)/boot/vmlinuz-6.19.10-200.fc43.x86_64 root=UUID=7db677d3-dd3a-4555-82fa-9edb1dbe14ac ro rhgb quiet splash rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nouveau.modeset=0 pcie_aspm=off nmi_watchdog=1 nvidia-drm.modeset=1 nvidia-drm.fbdev=1 nvidia.NVreg_EnableGpuFirmware=1 amd_pstate=active
+LSB Version:    n/a
+Distributor ID: Fedora
+Description:    Fedora Linux 43 (KDE Plasma Desktop Edition)
+Release:        43
+Codename:       n/a
+XDG_SESSION_TYPE=wayland
+0a:00.0 VGA compatible controller [0300]: NVIDIA Corporation GB203 [GeForce RTX 5080] [10de:2c02] (rev a1)
+
+==============NVSMI LOG==============
+
+Timestamp                                              : Fri Apr  3 15:41:30 2026
+Driver Version                                         : 580.142
+CUDA Version                                           : 13.0
+
+Attached GPUs                                          : 1
+GPU 00000000:0A:00.0
+    Product Name                                       : NVIDIA GeForce RTX 5080
+    Product Brand                                      : GeForce
+    Product Architecture                               : Blackwell
+    Display Mode                                       : Requested functionality has been deprecated
+    Display Attached                                   : Yes
+    Display Active                                     : Enabled
+    Persistence Mode                                   : Enabled
+    Addressing Mode                                    : HMM
+    MIG Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    Accounting Mode                                    : Disabled
+    Accounting Mode Buffer Size                        : 4000
+    Driver Model
+        Current                                        : N/A
+        Pending                                        : N/A
+    Serial Number                                      : 0
+    GPU UUID                                           : GPU-36456f76-7461-f4b8-5aba-1b1d3fb9c3c5
+    GPU PDI                                            : 0x8298ce814143a085
+    Minor Number                                       : 0
+    VBIOS Version                                      : 98.03.3B.C0.5B
+    MultiGPU Board                                     : No
+    Board ID                                           : 0xa00
+    Board Part Number                                  : N/A
+    GPU Part Number                                    : 2C02-400-A1
+    FRU Part Number                                    : N/A
+    Platform Info
+        Chassis Serial Number                          : 
+        Slot Number                                    : 0
+        Tray Index                                     : 0
+        Host ID                                        : 1
+        Peer Type                                      : Direct Connected
+        Module Id                                      : 1
+        GPU Fabric GUID                                : 0x0000000000000000
+    Inforom Version
+        Image Version                                  : G005.0000.98.01
+        OEM Object                                     : 2.1
+        ECC Object                                     : N/A
+        Power Management Object                        : N/A
+    Inforom BBX Object Flush
+        Latest Timestamp                               : N/A
+        Latest Duration                                : N/A
+    GPU Operation Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    GPU C2C Mode                                       : Disabled
+    GPU Virtualization Mode
+        Virtualization Mode                            : None
+        Host VGPU Mode                                 : N/A
+        vGPU Heterogeneous Mode                        : N/A
+    GPU Recovery Action                                : None
+    GSP Firmware Version                               : 580.142
+    IBMNPU
+        Relaxed Ordering Mode                          : N/A
+    PCI
+        Bus                                            : 0x0A
+        Device                                         : 0x00
+        Domain                                         : 0x0000
+        Base Classcode                                 : 0x3
+        Sub Classcode                                  : 0x0
+        Device Id                                      : 0x2C0210DE
+        Bus Id                                         : 00000000:0A:00.0
+        Sub System Id                                  : 0x41771458
+        GPU Link Info
+            PCIe Generation
+                Max                                    : 4
+                Current                                : 4
+                Device Current                         : 4
+                Device Max                             : 5
+                Host Max                               : 4
+            Link Width
+                Max                                    : 16x
+                Current                                : 16x
+        Bridge Chip
+            Type                                       : N/A
+            Firmware                                   : N/A
+        Replays Since Reset                            : 0
+        Replay Number Rollovers                        : 0
+        Tx Throughput                                  : 122103 KB/s
+        Rx Throughput                                  : 303200 KB/s
+        Atomic Caps Outbound                           : N/A
+        Atomic Caps Inbound                            : FETCHADD_32 FETCHADD_64 SWAP_32 SWAP_64 CAS_32 CAS_64 
+    Fan Speed                                          : 0 %
+    Performance State                                  : P0
+    Clocks Event Reasons
+        Idle                                           : Not Active
+        Applications Clocks Setting                    : Not Active
+        SW Power Cap                                   : Not Active
+        HW Slowdown                                    : Not Active
+            HW Thermal Slowdown                        : Not Active
+            HW Power Brake Slowdown                    : Not Active
+        Sync Boost                                     : Not Active
+        SW Thermal Slowdown                            : Not Active
+        Display Clock Setting                          : Not Active
+    Clocks Event Reasons Counters
+        SW Power Capping                               : 218915 us
+        Sync Boost                                     : 0 us
+        SW Thermal Slowdown                            : 0 us
+        HW Thermal Slowdown                            : 0 us
+        HW Power Braking                               : 0 us
+    Sparse Operation Mode                              : N/A
+    FB Memory Usage
+        Total                                          : 16303 MiB
+        Reserved                                       : 472 MiB
+        Used                                           : 1989 MiB
+        Free                                           : 13844 MiB
+    BAR1 Memory Usage
+        Total                                          : 16384 MiB
+        Used                                           : 50 MiB
+        Free                                           : 16334 MiB
+    Conf Compute Protected Memory Usage
+        Total                                          : 0 MiB
+        Used                                           : 0 MiB
+        Free                                           : 0 MiB
+    Compute Mode                                       : Default
+    Utilization
+        GPU                                            : 0 %
+        Memory                                         : 2 %
+        Encoder                                        : 0 %
+        Decoder                                        : 0 %
+        JPEG                                           : 0 %
+        OFA                                            : 0 %
+    Encoder Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    FBC Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    DRAM Encryption Mode
+        Current                                        : Disabled
+        Pending                                        : Disabled
+    ECC Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    ECC Errors
+        Volatile
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+        Aggregate
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+            SRAM Threshold Exceeded                    : N/A
+        Aggregate Uncorrectable SRAM Sources
+            SRAM L2                                    : N/A
+            SRAM SM                                    : N/A
+            SRAM Microcontroller                       : N/A
+            SRAM PCIE                                  : N/A
+            SRAM Other                                 : N/A
+        Channel Repair Pending                         : No
+        TPC Repair Pending                             : No
+    Retired Pages
+        Single Bit ECC                                 : N/A
+        Double Bit ECC                                 : N/A
+        Pending Page Blacklist                         : N/A
+    Remapped Rows                                      : N/A
+    Temperature
+        GPU Current Temp                               : 46 C
+        GPU T.Limit Temp                               : 42 C
+        GPU Shutdown T.Limit Temp                      : -5 C
+        GPU Slowdown T.Limit Temp                      : -2 C
+        GPU Max Operating T.Limit Temp                 : 0 C
+        GPU Target Temperature                         : N/A
+        Memory Current Temp                            : N/A
+        Memory Max Operating T.Limit Temp              : N/A
+    GPU Power Readings
+        Average Power Draw                             : 33.94 W
+        Instantaneous Power Draw                       : 32.83 W
+        Current Power Limit                            : 360.00 W
+        Requested Power Limit                          : 360.00 W
+        Default Power Limit                            : 360.00 W
+        Min Power Limit                                : 250.00 W
+        Max Power Limit                                : 400.00 W
+    GPU Memory Power Readings 
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+    Module Power Readings
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+        Current Power Limit                            : N/A
+        Requested Power Limit                          : N/A
+        Default Power Limit                            : N/A
+        Min Power Limit                                : N/A
+        Max Power Limit                                : N/A
+    Power Smoothing                                    : N/A
+    Workload Power Profiles
+        Requested Profiles                             : N/A
+        Enforced Profiles                              : N/A
+    Clocks
+        Graphics                                       : 367 MHz
+        SM                                             : 367 MHz
+        Memory                                         : 15001 MHz
+        Video                                          : 1110 MHz
+    Applications Clocks
+        Graphics                                       : N/A
+        Memory                                         : N/A
+    Default Applications Clocks
+        Graphics                                       : N/A
+        Memory                                         : N/A
+    Deferred Clocks
+        Memory                                         : N/A
+    Max Clocks
+        Graphics                                       : 3090 MHz
+        SM                                             : 3090 MHz
+        Memory                                         : 15001 MHz
+        Video                                          : 3090 MHz
+    Max Customer Boost Clocks
+        Graphics                                       : N/A
+    Clock Policy
+        Auto Boost                                     : N/A
+        Auto Boost Default                             : N/A
+    Fabric
+        State                                          : N/A
+        Status                                         : N/A
+        CliqueId                                       : N/A
+        ClusterUUID                                    : N/A
+        Health
+            Summary                                    : N/A
+            Bandwidth                                  : N/A
+            Route Recovery in progress                 : N/A
+            Route Unhealthy                            : N/A
+            Access Timeout Recovery                    : N/A
+            Incorrect Configuration                    : N/A
+            Partition Assigned                         : N/A
+    Processes
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 2261
+            Type                          : G
+            Name                          : /usr/bin/kwin_wayland
+            Used GPU Memory               : 268 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 2339
+            Type                          : G
+            Name                          : /usr/bin/Xwayland
+            Used GPU Memory               : 8 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 2953
+            Type                          : G
+            Name                          : /usr/lib64/thunderbird/thunderbird
+            Used GPU Memory               : 661 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 2983
+            Type                          : C+G
+            Name                          : /usr/bin/xwaylandvideobridge
+            Used GPU Memory               : 8 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 2984
+            Type                          : G
+            Name                          : /usr/lib64/firefox/firefox
+            Used GPU Memory               : 267 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 3495
+            Type                          : G
+            Name                          : rustdesk
+            Used GPU Memory               : 44 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 7028
+            Type                          : G
+            Name                          : /home/chase/.local/share/Steam/ubuntu12_32/steam
+            Used GPU Memory               : 8 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 7316
+            Type                          : G
+            Name                          : /app/obsidian
+            Used GPU Memory               : 83 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 8109
+            Type                          : G
+            Name                          : /app/discord/Discord
+            Used GPU Memory               : 30 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 10284
+            Type                          : G
+            Name                          : ./steamwebhelper
+            Used GPU Memory               : 30 MiB
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 10322
+            Type                          : C+G
+            Name                          : /home/chase/.local/share/Steam/ubuntu12_64/steamwebhelper
+            Used GPU Memory               : 9 MiB
+    Capabilities
+        EGM                                            : disabled
+
+filename:       /lib/modules/6.19.10-200.fc43.x86_64/extra/nvidia/nvidia.ko
+import_ns:      DMA_BUF
+alias:          char-major-195-*
+version:        580.142
+supported:      external
+license:        Dual MIT/GPL
+firmware:       nvidia/580.142/gsp_tu10x.bin
+firmware:       nvidia/580.142/gsp_ga10x.bin
+softdep:        pre: ecdh_generic,ecdsa_generic
+srcversion:     C4BC8E95CA62E8363647ABA
+alias:          pci:v000010DEd*sv*sd*bc06sc80i00*
+alias:          pci:v000010DEd*sv*sd*bc03sc02i00*
+alias:          pci:v000010DEd*sv*sd*bc03sc00i00*
+alias:          of:N*T*Cnvidia,tegra264-displayC*
+alias:          of:N*T*Cnvidia,tegra264-display
+alias:          of:N*T*Cnvidia,tegra234-displayC*
+alias:          of:N*T*Cnvidia,tegra234-display
+depends:        
+name:           nvidia
+retpoline:      Y
+vermagic:       6.19.10-200.fc43.x86_64 SMP preempt mod_unload 
+sig_id:         PKCS#7
+signer:         fedora_1773207095_9b47cae8
+sig_key:        26:D8:1F:1F:41:E8:6A:2F:FA:E0:22:3A:A6:8A:F4:2F:C5:2A:60:C8
+sig_hashalgo:   sha256
+signature:      71:6A:06:7D:78:49:A4:DF:8B:26:2C:16:96:CF:83:84:C5:E3:A2:5E:
+                14:D7:85:76:FF:19:A6:20:EF:ED:0E:2C:55:F8:B2:65:E3:5C:37:39:
+                B1:92:04:B6:66:22:DA:BE:19:41:D3:D6:47:37:FF:FF:4A:CC:51:12:
+                BE:52:1D:E2:C6:1F:16:75:62:CB:D6:B0:49:C9:63:83:AC:B4:D1:08:
+                2A:33:49:62:08:5D:5B:0E:D6:9F:BF:43:41:76:4B:3D:69:D4:E3:58:
+                FB:CF:C4:51:50:D2:CE:2C:1F:F2:09:97:18:DB:E8:D9:B8:41:B3:F6:
+                91:8B:33:9D:EE:3E:9A:5F:BE:05:7C:CC:22:2A:51:AA:4A:5A:F7:B2:
+                7A:73:F6:71:47:F5:DF:70:22:BA:C8:82:63:4C:9B:E7:49:3B:11:7E:
+                C7:99:2C:23:3E:5A:B6:65:80:2A:93:37:66:C1:A7:69:69:0F:E4:EC:
+                B6:C8:07:20:87:7F:80:0B:6E:8F:F7:B9:B1:A2:F9:59:77:7D:25:DA:
+                CB:2C:0E:A8:B9:07:01:CE:DC:2A:23:D1:2C:15:74:95:89:93:C7:2B:
+                FA:19:D9:D1:07:21:80:03:4C:18:58:59:A6:15:90:FE:D7:D1:C0:06:
+                1A:0D:BE:B5:72:7F:51:3B:C0:DA:EA:41:29:93:22:E0:3F:A2:C9:39:
+                4D:24:62:B3:F5:26:2F:FE:BD:6F:76:35:E3:7F:CB:6A:BF:62:50:98:
+                2D:68:A3:8A:FF:81:D3:AD:CE:2B:22:89:C7:F0:3A:C6:87:0A:B1:BF:
+                13:61:86:A2:7F:AD:A6:1F:C5:54:AB:9A:CD:2E:82:17:73:01:28:86:
+                EE:E7:1A:52:8B:45:AA:54:CE:40:08:BE:21:5E:37:F6:53:0A:A9:05:
+                6F:96:39:EC:B4:FD:72:5E:DF:F7:97:8B:47:49:E3:0C:84:C1:F4:F2:
+                C9:0B:57:8B:26:C4:56:53:DD:23:33:E1:30:CA:F4:26:C4:21:86:C8:
+                FD:60:AE:FA:94:90:11:B8:E4:FF:DB:5A:7D:0D:C4:C9:31:8F:D8:3E:
+                A7:BC:99:51:33:DD:6A:C2:13:6C:53:31:24:81:5F:70:12:44:79:D9:
+                B1:0B:3B:D2:91:D6:39:80:1B:C5:F7:A0:62:A4:C6:DE:A0:70:46:80:
+                71:95:C3:16:1D:90:08:D5:8F:7F:26:24:64:92:7A:15:C8:73:29:9C:
+                96:BF:D8:9A:44:78:39:BD:F2:FF:22:18:3D:79:A6:B4:78:D0:19:78:
+                E1:30:B2:CA:38:65:67:B2:61:D1:81:38:7B:16:22:AE:C0:4D:91:FB:
+                B3:35:94:D9:9A:0D:A5:2D:AC:F1:62:AC
+parm:           NvSwitchRegDwords:NvSwitch regkey (charp)
+parm:           NvSwitchBlacklist:NvSwitchBlacklist=uuid[,uuid...] (charp)
+parm:           NVreg_ResmanDebugLevel:int
+parm:           NVreg_RmLogonRC:int
+parm:           NVreg_ModifyDeviceFiles:int
+parm:           NVreg_DeviceFileUID:int
+parm:           NVreg_DeviceFileGID:int
+parm:           NVreg_DeviceFileMode:int
+parm:           NVreg_InitializeSystemMemoryAllocations:int
+parm:           NVreg_UsePageAttributeTable:int
+parm:           NVreg_EnablePCIeGen3:int
+parm:           NVreg_EnableMSI:int
+parm:           NVreg_EnableStreamMemOPs:int
+parm:           NVreg_RestrictProfilingToAdminUsers:int
+parm:           NVreg_PreserveVideoMemoryAllocations:int
+parm:           NVreg_EnableS0ixPowerManagement:int
+parm:           NVreg_S0ixPowerManagementVideoMemoryThreshold:int
+parm:           NVreg_DynamicPowerManagement:int
+parm:           NVreg_DynamicPowerManagementVideoMemoryThreshold:int
+parm:           NVreg_EnableGpuFirmware:int
+parm:           NVreg_EnableGpuFirmwareLogs:int
+parm:           NVreg_OpenRmEnableUnsupportedGpus:int
+parm:           NVreg_EnableUserNUMAManagement:int
+parm:           NVreg_MemoryPoolSize:int
+parm:           NVreg_KMallocHeapMaxSize:int
+parm:           NVreg_VMallocHeapMaxSize:int
+parm:           NVreg_IgnoreMMIOCheck:int
+parm:           NVreg_NvLinkDisable:int
+parm:           NVreg_EnablePCIERelaxedOrderingMode:int
+parm:           NVreg_RegisterPCIDriver:int
+parm:           NVreg_RegisterPlatformDeviceDriver:int
+parm:           NVreg_EnableResizableBar:int
+parm:           NVreg_EnableDbgBreakpoint:int
+parm:           NVreg_EnableNonblockingOpen:int
+parm:           NVreg_CoherentGPUMemoryMode:charp
+parm:           NVreg_RegistryDwords:charp
+parm:           NVreg_RegistryDwordsPerDevice:charp
+parm:           NVreg_RmMsg:charp
+parm:           NVreg_GpuBlacklist:charp
+parm:           NVreg_TemporaryFilePath:charp
+parm:           NVreg_ExcludedGpus:charp
+parm:           NVreg_DmaRemapPeerMmio:int
+parm:           NVreg_RmNvlinkBandwidth:charp
+parm:           NVreg_RmNvlinkBandwidthLinkCount:int
+parm:           NVreg_ImexChannelCount:int
+parm:           NVreg_CreateImexChannel0:int
+parm:           NVreg_GrdmaPciTopoCheckOverride:int
+parm:           rm_firmware_active:charp
+dmesg: read kernel buffer failed: Operation not permitted
+Apr 03 15:38:27 Tits kernel: Free swap  = 16777212kB
+Apr 03 15:38:27 Tits kernel: Total swap = 16777212kB
+Apr 03 15:38:27 Tits kernel: 8365066 pages RAM
+Apr 03 15:38:27 Tits kernel: 0 pages HighMem/MovableOnly
+Apr 03 15:38:27 Tits kernel: 177742 pages reserved
+Apr 03 15:38:27 Tits kernel: 0 pages cma reserved
+Apr 03 15:38:27 Tits kernel: 0 pages hwpoisoned
+Apr 03 15:38:27 Tits systemd-coredump[27424]: [🡕] Process 27421 (kscreen-doctor) of user 0 dumped core.
+                                              
+                                              Module /usr/bin/kscreen-doctor from rpm libkscreen-6.6.3-1.fc43.x86_64
+                                              Module libuuid.so.1 from rpm util-linux-2.41.3-7.fc43.x86_64
+                                              Module libxcb-util.so.1 from rpm xcb-util-0.4.1-8.fc43.x86_64
+                                              Module libxkbcommon-x11.so.0 from rpm libxkbcommon-1.11.0-1.fc43.x86_64
+                                              Module libICE.so.6 from rpm libICE-1.1.2-3.fc43.x86_64
+                                              Module libSM.so.6 from rpm libSM-1.2.5-3.fc43.x86_64
+                                              Module libX11-xcb.so.1 from rpm libX11-1.8.13-1.fc43.x86_64
+                                              Module libxcb-xkb.so.1 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-xfixes.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-sync.so.1 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-shm.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-shape.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-render-util.so.0 from rpm xcb-util-renderutil-0.3.10-8.fc43.x86_64
+                                              Module libxcb-render.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-randr.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb-keysyms.so.1 from rpm xcb-util-keysyms-0.4.1-8.fc43.x86_64
+                                              Module libxcb-image.so.0 from rpm xcb-util-image-0.4.1-8.fc43.x86_64
+                                              Module libxcb-icccm.so.4 from rpm xcb-util-wm-0.4.2-8.fc43.x86_64
+                                              Module libxcb-cursor.so.0 from rpm xcb-util-cursor-0.1.5-4.fc43.x86_64
+                                              Module libQt6XcbQpa.so.6 from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libqxcb.so from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libbrotlicommon.so.1 from rpm brotli-1.2.0-1.fc43.x86_64
+                                              Module liblzma.so.5 from rpm xz-5.8.1-4.fc43.x86_64
+                                              Module libcap.so.2 from rpm libcap-2.76-3.fc43.x86_64
+                                              Module libicudata.so.77 from rpm icu-77.1-1.fc43.x86_64
+                                              Module libbrotlidec.so.1 from rpm brotli-1.2.0-1.fc43.x86_64
+                                              Module libbz2.so.1 from rpm bzip2-1.0.8-21.fc43.x86_64
+                                              Module libgraphite2.so.3 from rpm graphite2-1.3.14-19.fc43.x86_64
+                                              Module libXext.so.6 from rpm libXext-1.3.6-4.fc43.x86_64
+                                              Module libpcre2-8.so.0 from rpm pcre2-10.47-1.fc43.x86_64
+                                              Module libxml2.so.2 from rpm libxml2-2.12.10-5.fc43.x86_64
+                                              Module libGLdispatch.so.0 from rpm libglvnd-1.7.0-8.fc43.x86_64
+                                              Module libffi.so.8 from rpm libffi-3.5.2-1.fc43.x86_64
+                                              Module libwayland-cursor.so.0 from rpm wayland-1.24.0-1.fc43.x86_64
+                                              Module libXau.so.6 from rpm libXau-1.0.12-3.fc43.x86_64
+                                              Module libdbus-1.so.3 from rpm dbus-1.16.0-4.fc43.x86_64
+                                              Module libcrypto.so.3 from rpm openssl-3.5.4-2.fc43.x86_64
+                                              Module libpcre2-16.so.0 from rpm pcre2-10.47-1.fc43.x86_64
+                                              Module libb2.so.1 from rpm libb2-0.98.1-14.fc43.x86_64
+                                              Module libdouble-conversion.so.3 from rpm double-conversion-3.4.0-1.fc43.x86_64
+                                              Module libsystemd.so.0 from rpm systemd-258.7-1.fc43.x86_64
+                                              Module libzstd.so.1 from rpm zstd-1.5.7-2.fc43.x86_64
+                                              Module libicuuc.so.77 from rpm icu-77.1-1.fc43.x86_64
+                                              Module libicui18n.so.77 from rpm icu-77.1-1.fc43.x86_64
+                                              Module libz.so.1 from rpm zlib-ng-2.3.3-2.fc43.x86_64
+                                              Module libfreetype.so.6 from rpm freetype-2.13.3-3.fc43.x86_64
+                                              Module libharfbuzz.so.0 from rpm harfbuzz-11.5.1-2.fc43.x86_64
+                                              Module libpng16.so.16 from rpm libpng-1.6.55-1.fc43.x86_64
+                                              Module libOpenGL.so.0 from rpm libglvnd-1.7.0-8.fc43.x86_64
+                                              Module libGLX.so.0 from rpm libglvnd-1.7.0-8.fc43.x86_64
+                                              Module libxkbcommon.so.0 from rpm libxkbcommon-1.11.0-1.fc43.x86_64
+                                              Module libglib-2.0.so.0 from rpm glib2-2.86.4-2.fc43.x86_64
+                                              Module libX11.so.6 from rpm libX11-1.8.13-1.fc43.x86_64
+                                              Module libfontconfig.so.1 from rpm fontconfig-2.17.0-3.fc43.x86_64
+                                              Module libEGL.so.1 from rpm libglvnd-1.7.0-8.fc43.x86_64
+                                              Module libwayland-client.so.0 from rpm wayland-1.24.0-1.fc43.x86_64
+                                              Module libQt6WaylandClient.so.6 from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libxcb-dpms.so.0 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libxcb.so.1 from rpm libxcb-1.17.0-6.fc43.x86_64
+                                              Module libQt6DBus.so.6 from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libQt6Core.so.6 from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libQt6Gui.so.6 from rpm qt6-qtbase-6.10.2-2.fc43.x86_64
+                                              Module libKF6ScreenDpms.so.8 from rpm libkscreen-6.6.3-1.fc43.x86_64
+                                              Module libKF6Screen.so.8 from rpm libkscreen-6.6.3-1.fc43.x86_64
+                                              Stack trace of thread 27421:
+                                              #0  0x00007fea5dc813cc __pthread_kill_implementation (libc.so.6 + 0x743cc)
+                                              #1  0x00007fea5dc2715e raise (libc.so.6 + 0x1a15e)
+                                              #2  0x00007fea5dc0e6d0 abort (libc.so.6 + 0x16d0)
+                                              #3  0x00007fea5e21b074 _Z6qAbortv (libQt6Core.so.6 + 0x1b074)
+                                              #4  0x00007fea5e271af9 _ZL10qt_message9QtMsgTypeRK18QMessageLogContextPKcP13__va_list_tag (libQt6Core.so.6 + 0x71af9)
+                                              #5  0x00007fea5e21c840 _ZNK14QMessageLogger5fatalEPKcz (libQt6Core.so.6 + 0x1c840)
+                                              #6  0x00007fea5ea2e54d _ZL13init_platformRK7QStringS1_S1_RiPPc.cold (libQt6Gui.so.6 + 0x2e54d)
+                                              #7  0x00007fea5eae73db _ZN22QGuiApplicationPrivate25createPlatformIntegrationEv (libQt6Gui.so.6 + 0xe73db)
+                                              #8  0x00007fea5eae7f08 _ZN22QGuiApplicationPrivate21createEventDispatcherEv (libQt6Gui.so.6 + 0xe7f08)
+                                              #9  0x00007fea5e304aed _ZN23QCoreApplicationPrivate4initEv (libQt6Core.so.6 + 0x104aed)
+                                              #10 0x00007fea5eaeca0d _ZN22QGuiApplicationPrivate4initEv (libQt6Gui.so.6 + 0xeca0d)
+                                              #11 0x00007fea5eaee559 _ZN15QGuiApplicationC1ERiPPci (libQt6Gui.so.6 + 0xee559)
+                                              #12 0x0000560b6e39e314 main (/usr/bin/kscreen-doctor + 0x3314)
+                                              #13 0x00007fea5dc105b5 __libc_start_call_main (libc.so.6 + 0x35b5)
+                                              #14 0x00007fea5dc10668 __libc_start_main@@GLIBC_2.34 (libc.so.6 + 0x3668)
+                                              #15 0x0000560b6e3a00a5 _start (/usr/bin/kscreen-doctor + 0x50a5)
+                                              ELF object binary architecture: AMD x86-64
+Apr 03 15:38:27 Tits immortal-sentinel[1797]: /usr/local/bin/immortal-sentinel: line 31: 27421 Aborted                    (core dumped) kscreen-doctor --outputs --set-all-enabled > /dev/null 2>&1
+Apr 03 15:38:27 Tits systemd[1]: systemd-coredump@4-8194-27422_27423-0.service: Deactivated successfully.
+Apr 03 15:38:27 Tits audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-coredump@4-8194-27422_27423-0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Apr 03 15:38:27 Tits immortal-sentinel[1797]: Can't open display
+Apr 03 15:38:27 Tits immortal-sentinel[1797]: Failed to parse timestamp: 5min
+Apr 03 15:38:27 Tits audit: BPF prog-id=126 op=UNLOAD
+Apr 03 15:38:27 Tits audit: BPF prog-id=125 op=UNLOAD
+Apr 03 15:38:27 Tits audit: BPF prog-id=124 op=UNLOAD
+Apr 03 15:38:27 Tits drkonqi-coredump-processor[27425]: The socket path doesn't exist @ "/run/user/0/drkonqi-coredump-launcher"
+Apr 03 15:38:27 Tits systemd[1]: drkonqi-coredump-processor@4-8194-27422_27423-0.service: Deactivated successfully.
+Apr 03 15:38:27 Tits audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=drkonqi-coredump-processor@4-8194-27422_27423-0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Apr 03 15:38:27 Tits audit: BPF prog-id=129 op=UNLOAD
+Apr 03 15:38:27 Tits audit: BPF prog-id=128 op=UNLOAD
+Apr 03 15:38:27 Tits audit: BPF prog-id=127 op=UNLOAD
+Apr 03 15:38:56 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0, visibility=QWindow::Hidden, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559ccc414dc0, geometry=1387,848 296x195)
+Apr 03 15:39:21 Tits earlyoom[1296]: mem avail: 21805 of 30349 MiB (71.85%), swap free: 16383 of 16383 MiB (100.00%)
+Apr 03 15:39:52 Tits systemd[1840]: Started app-org.kde.dolphin@62446815785b4c8cbc90286b2afdc6b1.service - Dolphin - File Manager.
+Apr 03 15:39:53 Tits dolphin[28704]: <input>:1:135167: Could not resolve property: #linearGradient8471
+Apr 03 15:39:53 Tits dolphin[28704]: <input>:1:135167: Could not resolve property: #linearGradient8473
+Apr 03 15:39:53 Tits dolphin[28704]: Failed to add include folder config entry for "/home/chase"
+Apr 03 15:39:53 Tits dolphin[28704]: Failed to add include folder config entry for "/home/chase"
+Apr 03 15:39:53 Tits dolphin[28704]: Failed to add include folder config entry for "/home/chase"
+Apr 03 15:39:53 Tits dolphin[28704]: Failed to add exclude folder config entry for "/home/chase"
+Apr 03 15:39:53 Tits systemd[1]: Starting sssd-kcm.service - SSSD Kerberos Cache Manager...
+Apr 03 15:39:53 Tits systemd[1]: Starting systemd-zram-setup@zram0.service - Create swap on /dev/zram0...
+Apr 03 15:39:53 Tits kernel: Memory cgroup min protection 256000kB -- low protection 0kB
+Apr 03 15:39:53 Tits kernel: zram-generator: vmalloc error: size 61440000000000, exceeds total pages, mode:0xdc0(GFP_KERNEL|__GFP_ZERO), nodemask=(null),cpuset=/,mems_allowed=0
+Apr 03 15:39:53 Tits kernel: CPU: 21 UID: 0 PID: 28770 Comm: zram-generator Tainted: G        W  OE       6.19.10-200.fc43.x86_64 #1 PREEMPT(lazy) 
+Apr 03 15:39:53 Tits kernel: Tainted: [W]=WARN, [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+Apr 03 15:39:53 Tits kernel: Hardware name: System manufacturer System Product Name/TUF GAMING X570-PLUS (WI-FI), BIOS 5044 01/04/2026
+Apr 03 15:39:53 Tits kernel: Call Trace:
+Apr 03 15:39:53 Tits kernel:  <TASK>
+Apr 03 15:39:53 Tits zram-generator[28770]: Error: Failed to configure disk size into /sys/block/zram0/disksize
+Apr 03 15:39:53 Tits zram-generator[28770]: Caused by:
+Apr 03 15:39:53 Tits zram-generator[28770]:     Cannot allocate memory (os error 12)
+Apr 03 15:39:53 Tits kernel:  dump_stack_lvl+0x5d/0x80
+Apr 03 15:39:53 Tits kernel:  warn_alloc+0x163/0x190
+Apr 03 15:39:53 Tits kernel:  __vmalloc_node_range_noprof+0x1db/0x1e0
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  __vmalloc_node_noprof+0x4c/0x70
+Apr 03 15:39:53 Tits kernel:  ? disksize_store+0x85/0x2b0 [zram]
+Apr 03 15:39:53 Tits kernel:  disksize_store+0x85/0x2b0 [zram]
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  kernfs_fop_write_iter+0x14d/0x200
+Apr 03 15:39:53 Tits kernel:  vfs_write+0x25d/0x480
+Apr 03 15:39:53 Tits kernel:  ksys_write+0x73/0xf0
+Apr 03 15:39:53 Tits kernel:  do_syscall_64+0x7e/0x6b0
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  ? __x64_sys_openat+0x61/0xa0
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  ? do_syscall_64+0xbb/0x6b0
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  ? irqentry_exit+0x6d/0x540
+Apr 03 15:39:53 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:39:53 Tits kernel:  ? exc_page_fault+0x7e/0x1a0
+Apr 03 15:39:53 Tits kernel:  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+Apr 03 15:39:53 Tits kernel: RIP: 0033:0x7fa358eb1c5e
+Apr 03 15:39:53 Tits kernel: Code: 4d 89 d8 e8 34 bd 00 00 4c 8b 5d f8 41 8b 93 08 03 00 00 59 5e 48 83 f8 fc 74 11 c9 c3 0f 1f 80 00 00 00 00 48 8b 45 10 0f 05 <c9> c3 83 e2 39 83 fa 08 75 e7 e8 13 ff ff ff 0f 1f 00 f3 0f 1e fa
+Apr 03 15:39:53 Tits kernel: RSP: 002b:00007ffddea4da80 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+Apr 03 15:39:53 Tits kernel: RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007fa358eb1c5e
+Apr 03 15:39:53 Tits kernel: RDX: 0000000000000011 RSI: 000056153f89e370 RDI: 0000000000000004
+Apr 03 15:39:53 Tits kernel: RBP: 00007ffddea4da90 R08: 0000000000000000 R09: 0000000000000000
+Apr 03 15:39:53 Tits kernel: R10: 0000000000000000 R11: 0000000000000202 R12: 00007fa358f2c1e0
+Apr 03 15:39:53 Tits kernel: R13: 7fffffffffffffff R14: 0000000000000011 R15: 000056153f89e370
+Apr 03 15:39:53 Tits kernel:  </TASK>
+Apr 03 15:39:53 Tits kernel: Mem-Info:
+Apr 03 15:39:53 Tits kernel: active_anon:2328809 inactive_anon:0 isolated_anon:0
+                              active_file:1062438 inactive_file:2139238 isolated_file:0
+                              unevictable:1615 dirty:195 writeback:3
+                              slab_reclaimable:160467 slab_unreclaimable:110409
+                              mapped:585788 shmem:127226 pagetables:26961
+                              sec_pagetables:1556 bounce:0
+                              kernel_misc_reclaimable:0
+                              free:2064440 free_pcp:62080 free_cma:0
+Apr 03 15:39:53 Tits kernel: Node 0 active_anon:9315236kB inactive_anon:0kB active_file:4249752kB inactive_file:8556952kB unevictable:6460kB isolated(anon):0kB isolated(file):0kB mapped:2343152kB dirty:780kB writeback:12kB shmem:508904kB shmem_thp:0kB shmem_pmdmapped:0kB anon_thp:452608kB kernel_stack:36896kB pagetables:107844kB sec_pagetables:6224kB all_unreclaimable? no Balloon:0kB
+Apr 03 15:39:53 Tits kernel: Node 0 DMA free:11264kB boost:0kB min:28kB low:40kB high:52kB reserved_highatomic:0KB free_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB zspages:0kB present:15996kB managed:15364kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
+Apr 03 15:39:53 Tits kernel: lowmem_reserve[]: 0 3168 31966 31966 31966
+Apr 03 15:39:53 Tits kernel: Node 0 DMA32 free:3236120kB boost:0kB min:6692kB low:9936kB high:13180kB reserved_highatomic:0KB free_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB zspages:0kB present:3311020kB managed:3244280kB mlocked:0kB bounce:0kB free_pcp:2016kB local_pcp:0kB free_cma:0kB
+Apr 03 15:39:53 Tits kernel: lowmem_reserve[]: 0 0 28798 28798 28798
+Apr 03 15:39:53 Tits kernel: Node 0 Normal free:5010376kB boost:0kB min:60856kB low:90344kB high:119832kB reserved_highatomic:0KB free_highatomic:0KB active_anon:9315236kB inactive_anon:0kB active_file:4249752kB inactive_file:8556952kB unevictable:6460kB writepending:792kB zspages:0kB present:30133248kB managed:29489652kB mlocked:2964kB bounce:0kB free_pcp:246300kB local_pcp:1124kB free_cma:0kB
+Apr 03 15:39:53 Tits kernel: lowmem_reserve[]: 0 0 0 0 0
+Apr 03 15:39:53 Tits kernel: Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 2*4096kB (M) = 11264kB
+Apr 03 15:39:53 Tits kernel: Node 0 DMA32: 6*4kB (UM) 14*8kB (UM) 9*16kB (M) 8*32kB (M) 10*64kB (UM) 9*128kB (UM) 8*256kB (UM) 10*512kB (UM) 11*1024kB (UM) 10*2048kB (UM) 780*4096kB (M) = 3236120kB
+Apr 03 15:39:53 Tits kernel: Node 0 Normal: 1856*4kB (UE) 185*8kB (UE) 1638*16kB (UME) 1221*32kB (UME) 1563*64kB (UME) 960*128kB (UME) 399*256kB (UME) 164*512kB (UME) 52*1024kB (UME) 42*2048kB (UME) 1071*4096kB (UME) = 5009288kB
+Apr 03 15:39:53 Tits kernel: Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
+Apr 03 15:39:53 Tits kernel: Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+Apr 03 15:39:53 Tits kernel: 3029361 total pagecache pages
+Apr 03 15:39:53 Tits kernel: 0 pages in swap cache
+Apr 03 15:39:53 Tits kernel: Free swap  = 16777212kB
+Apr 03 15:39:53 Tits systemd[1]: systemd-zram-setup@zram0.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 15:39:53 Tits kernel: Total swap = 16777212kB
+Apr 03 15:39:53 Tits kernel: 8365066 pages RAM
+Apr 03 15:39:53 Tits kernel: 0 pages HighMem/MovableOnly
+Apr 03 15:39:53 Tits kernel: 177742 pages reserved
+Apr 03 15:39:53 Tits kernel: 0 pages cma reserved
+Apr 03 15:39:53 Tits kernel: 0 pages hwpoisoned
+Apr 03 15:39:53 Tits systemd[1]: systemd-zram-setup@zram0.service: Failed with result 'exit-code'.
+Apr 03 15:39:53 Tits systemd[1]: Failed to start systemd-zram-setup@zram0.service - Create swap on /dev/zram0.
+Apr 03 15:39:53 Tits systemd[1]: Dependency failed for dev-zram0.swap - Compressed Swap on /dev/zram0.
+Apr 03 15:39:53 Tits systemd[1]: dev-zram0.swap: Job dev-zram0.swap/start failed with result 'dependency'.
+Apr 03 15:39:53 Tits audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-zram-setup@zram0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
+Apr 03 15:39:53 Tits systemd[1]: Started sssd-kcm.service - SSSD Kerberos Cache Manager.
+Apr 03 15:39:53 Tits audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=sssd-kcm comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Apr 03 15:39:53 Tits sssd_kcm[28785]: Starting up
+Apr 03 15:39:53 Tits kioworker[28745]: <input>:1:135167: Could not resolve property: #linearGradient8471
+Apr 03 15:39:53 Tits kioworker[28745]: <input>:1:135167: Could not resolve property: #linearGradient8473
+Apr 03 15:39:53 Tits dolphin[28800]: GPL Ghostscript 10.05.1: Unrecoverable error, exit code 1
+Apr 03 15:40:04 Tits kioworker[28739]: <input>:1:135167: Could not resolve property: #linearGradient8471
+Apr 03 15:40:04 Tits kioworker[28739]: <input>:1:135167: Could not resolve property: #linearGradient8473
+Apr 03 15:40:04 Tits systemd[1]: Starting sysstat-collect.service - system activity accounting tool...
+Apr 03 15:40:04 Tits systemd[1]: Starting systemd-zram-setup@zram0.service - Create swap on /dev/zram0...
+Apr 03 15:40:04 Tits zram-generator[28937]: Error: Failed to configure disk size into /sys/block/zram0/disksize
+Apr 03 15:40:04 Tits zram-generator[28937]: Caused by:
+Apr 03 15:40:04 Tits zram-generator[28937]:     Cannot allocate memory (os error 12)
+Apr 03 15:40:04 Tits kernel: Memory cgroup min protection 256000kB -- low protection 0kB
+Apr 03 15:40:04 Tits kernel: zram-generator: vmalloc error: size 61440000000000, exceeds total pages, mode:0xdc0(GFP_KERNEL|__GFP_ZERO), nodemask=(null),cpuset=/,mems_allowed=0
+Apr 03 15:40:04 Tits kernel: CPU: 4 UID: 0 PID: 28937 Comm: zram-generator Tainted: G        W  OE       6.19.10-200.fc43.x86_64 #1 PREEMPT(lazy) 
+Apr 03 15:40:04 Tits kernel: Tainted: [W]=WARN, [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+Apr 03 15:40:04 Tits kernel: Hardware name: System manufacturer System Product Name/TUF GAMING X570-PLUS (WI-FI), BIOS 5044 01/04/2026
+Apr 03 15:40:04 Tits kernel: Call Trace:
+Apr 03 15:40:04 Tits kernel:  <TASK>
+Apr 03 15:40:04 Tits kernel:  dump_stack_lvl+0x5d/0x80
+Apr 03 15:40:04 Tits kernel:  warn_alloc+0x163/0x190
+Apr 03 15:40:04 Tits kernel:  __vmalloc_node_range_noprof+0x1db/0x1e0
+Apr 03 15:40:04 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:40:04 Tits kernel:  __vmalloc_node_noprof+0x4c/0x70
+Apr 03 15:40:04 Tits kernel:  ? disksize_store+0x85/0x2b0 [zram]
+Apr 03 15:40:04 Tits kernel:  disksize_store+0x85/0x2b0 [zram]
+Apr 03 15:40:04 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:40:04 Tits kernel:  kernfs_fop_write_iter+0x14d/0x200
+Apr 03 15:40:04 Tits kernel:  vfs_write+0x25d/0x480
+Apr 03 15:40:04 Tits kernel:  ksys_write+0x73/0xf0
+Apr 03 15:40:04 Tits kernel:  do_syscall_64+0x7e/0x6b0
+Apr 03 15:40:04 Tits kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+Apr 03 15:40:04 Tits kernel:  ? exc_page_fault+0x7e/0x1a0
+Apr 03 15:40:04 Tits kernel:  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+Apr 03 15:40:04 Tits kernel: RIP: 0033:0x7f9892b76c5e
+Apr 03 15:40:04 Tits kernel: Code: 4d 89 d8 e8 34 bd 00 00 4c 8b 5d f8 41 8b 93 08 03 00 00 59 5e 48 83 f8 fc 74 11 c9 c3 0f 1f 80 00 00 00 00 48 8b 45 10 0f 05 <c9> c3 83 e2 39 83 fa 08 75 e7 e8 13 ff ff ff 0f 1f 00 f3 0f 1e fa
+Apr 03 15:40:04 Tits kernel: RSP: 002b:00007ffe51a4f5b0 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+Apr 03 15:40:04 Tits kernel: RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f9892b76c5e
+Apr 03 15:40:04 Tits kernel: RDX: 0000000000000011 RSI: 0000558b14656370 RDI: 0000000000000004
+Apr 03 15:40:04 Tits kernel: RBP: 00007ffe51a4f5c0 R08: 0000000000000000 R09: 0000000000000000
+Apr 03 15:40:04 Tits kernel: R10: 0000000000000000 R11: 0000000000000202 R12: 00007f9892bf11e0
+Apr 03 15:40:04 Tits kernel: R13: 7fffffffffffffff R14: 0000000000000011 R15: 0000558b14656370
+Apr 03 15:40:04 Tits kernel:  </TASK>
+Apr 03 15:40:04 Tits kernel: Mem-Info:
+Apr 03 15:40:04 Tits kernel: active_anon:2222578 inactive_anon:0 isolated_anon:0
+                              active_file:1062503 inactive_file:2139377 isolated_file:0
+                              unevictable:1615 dirty:359 writeback:0
+                              slab_reclaimable:160476 slab_unreclaimable:110482
+                              mapped:585335 shmem:127019 pagetables:26960
+                              sec_pagetables:1557 bounce:0
+                              kernel_misc_reclaimable:0
+                              free:2180241 free_pcp:52488 free_cma:0
+Apr 03 15:40:04 Tits kernel: Node 0 active_anon:8890312kB inactive_anon:0kB active_file:4250012kB inactive_file:8557508kB unevictable:6460kB isolated(anon):0kB isolated(file):0kB mapped:2341340kB dirty:1436kB writeback:0kB shmem:508076kB shmem_thp:0kB shmem_pmdmapped:0kB anon_thp:450560kB kernel_stack:37152kB pagetables:107840kB sec_pagetables:6228kB all_unreclaimable? no Balloon:0kB
+Apr 03 15:40:04 Tits kernel: Node 0 DMA free:11264kB boost:0kB min:28kB low:40kB high:52kB reserved_highatomic:0KB free_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB zspages:0kB present:15996kB managed:15364kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
+Apr 03 15:40:04 Tits kernel: lowmem_reserve[]: 0 3168 31966 31966 31966
+Apr 03 15:40:04 Tits kernel: Node 0 DMA32 free:3236120kB boost:0kB min:6692kB low:9936kB high:13180kB reserved_highatomic:0KB free_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB zspages:0kB present:3311020kB managed:3244280kB mlocked:0kB bounce:0kB free_pcp:2016kB local_pcp:0kB free_cma:0kB
+Apr 03 15:40:04 Tits kernel: lowmem_reserve[]: 0 0 28798 28798 28798
+Apr 03 15:40:04 Tits kernel: Node 0 Normal free:5473580kB boost:0kB min:60856kB low:90344kB high:119832kB reserved_highatomic:0KB free_highatomic:0KB active_anon:8890312kB inactive_anon:0kB active_file:4250012kB inactive_file:8557508kB unevictable:6460kB writepending:1436kB zspages:0kB present:30133248kB managed:29489652kB mlocked:2964kB bounce:0kB free_pcp:207880kB local_pcp:1424kB free_cma:0kB
+Apr 03 15:40:04 Tits kernel: lowmem_reserve[]: 0 0 0 0 0
+Apr 03 15:40:04 Tits kernel: Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 2*4096kB (M) = 11264kB
+Apr 03 15:40:04 Tits kernel: Node 0 DMA32: 6*4kB (UM) 14*8kB (UM) 9*16kB (M) 8*32kB (M) 10*64kB (UM) 9*128kB (UM) 8*256kB (UM) 10*512kB (UM) 11*1024kB (UM) 10*2048kB (UM) 780*4096kB (M) = 3236120kB
+Apr 03 15:40:04 Tits systemd[1]: systemd-zram-setup@zram0.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 15:40:04 Tits kernel: Node 0 Normal: 31052*4kB (UME) 9399*8kB (UME) 5425*16kB (UME) 2846*32kB (UME) 2192*64kB (UME) 1330*128kB (UME) 553*256kB (UME) 211*512kB (UME) 57*1024kB (UME) 40*2048kB (UME) 1073*4096kB (UME) = 5472696kB
+Apr 03 15:40:04 Tits kernel: Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
+Apr 03 15:40:04 Tits kernel: Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+Apr 03 15:40:04 Tits kernel: 3029244 total pagecache pages
+Apr 03 15:40:04 Tits kernel: 0 pages in swap cache
+Apr 03 15:40:04 Tits kernel: Free swap  = 16777212kB
+Apr 03 15:40:04 Tits kernel: Total swap = 16777212kB
+Apr 03 15:40:04 Tits kernel: 8365066 pages RAM
+Apr 03 15:40:04 Tits kernel: 0 pages HighMem/MovableOnly
+Apr 03 15:40:04 Tits kernel: 177742 pages reserved
+Apr 03 15:40:04 Tits systemd[1]: systemd-zram-setup@zram0.service: Failed with result 'exit-code'.
+Apr 03 15:40:04 Tits kernel: 0 pages cma reserved
+Apr 03 15:40:04 Tits kernel: 0 pages hwpoisoned
+Apr 03 15:40:04 Tits systemd[1]: Failed to start systemd-zram-setup@zram0.service - Create swap on /dev/zram0.
+Apr 03 15:40:04 Tits systemd[1]: Dependency failed for dev-zram0.swap - Compressed Swap on /dev/zram0.
+Apr 03 15:40:04 Tits systemd[1]: dev-zram0.swap: Job dev-zram0.swap/start failed with result 'dependency'.
+Apr 03 15:40:04 Tits audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-zram-setup@zram0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
+Apr 03 15:40:04 Tits systemd[1]: sysstat-collect.service: Deactivated successfully.
+Apr 03 15:40:04 Tits systemd[1]: Finished sysstat-collect.service - system activity accounting tool.
+Apr 03 15:40:04 Tits audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=sysstat-collect comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Apr 03 15:40:04 Tits audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=sysstat-collect comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Apr 03 15:40:04 Tits dolphin[28938]: GPL Ghostscript 10.05.1: Unrecoverable error, exit code 1
+Apr 03 15:40:21 Tits earlyoom[1296]: mem avail: 21700 of 31122 MiB (69.72%), swap free: 16383 of 16383 MiB (100.00%)
+Apr 03 15:40:55 Tits systemd[1840]: Started app-geany@6adcac39211a49c1a4b0c995fec9ed6c.service - Geany - Integrated Development Environment.
+Apr 03 15:40:56 Tits systemd[1840]: Started vte-spawn-2a46475a-65f6-4483-b288-f374c26f5923.scope - VTE child process 31021 launched by geany process 29671.
+Apr 03 15:41:21 Tits earlyoom[1296]: mem avail: 21666 of 31042 MiB (69.80%), swap free: 16383 of 16383 MiB (100.00%)
+Apr 03 15:41:26 Tits systemd[1840]: app-geany@6adcac39211a49c1a4b0c995fec9ed6c.service: Consumed 1.452s CPU time, 81.6M memory peak.
+Apr 03 15:41:26 Tits wireplumber[1915]: wp-event-dispatcher: <WpAsyncEventHook:0x556a04afc590> failed: failed to activate item: Object activation aborted: proxy destroyed
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:27 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:41:28 Tits plasmashell[2393]: need a window and a context ToolTipDialog(0x559cc9853fd0 exposed, visibility=QWindow::Windowed, flags=QFlags<Qt::WindowType>(FramelessWindowHint|WindowStaysOnTopHint|WindowDoesNotAcceptFocus), transientParent=0x559cc6ae2b50, geometry=2623,1529 908x213)
+Apr 03 15:28:32 Tits kwin_wayland[2261]: No backend specified, automatically choosing drm
+Apr 03 15:28:37 Tits kwin_wayland[2261]: "\"fsrestore1\" - conversion of \"0,0,0,0\" to QRectF failed"
+Apr 03 15:28:37 Tits kwin_wayland[2261]: "\"fsrestore2\" - conversion of \"0,0,0,0\" to QRectF failed"
+Apr 03 15:28:37 Tits kwin_wayland[2261]: "\"fsrestore3\" - conversion of \"0,0,0,0\" to QRectF failed"
+Apr 03 15:28:37 Tits kwin_wayland[2261]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Unable to open /proc/2261/root")
+Apr 03 15:28:37 Tits kwin_wayland[2261]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Unable to open /proc/2261/root")
+Apr 03 15:32:27 Tits kwin_wayland[2261]: Libeis: 🪲  Bug: eis_device_stop_emulating: missing call to eis_device_frame()
+Apr 03 15:36:39 Tits kwin_wayland[2261]: Libeis: 🪲  Bug: eis_device_stop_emulating: missing call to eis_device_frame()
+Apr 03 15:36:45 Tits kwin_wayland[2261]: Libeis: 🪲  Bug: eis_device_stop_emulating: missing call to eis_device_frame()
+Apr 03 15:28:25 Tits systemd[1]: Started sddm.service - Simple Desktop Display Manager.
+Apr 03 15:28:25 Tits sddm-helper[1789]: Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+                                        Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+                                        If this causes problems, reconfigure your locale. See the locale(1) manual
+                                        for more information.
+Apr 03 15:28:26 Tits sddm-helper[1789]: pam_unix(sddm-autologin:session): session opened for user chase(uid=1000) by chase(uid=0)
+Apr 03 15:28:26 Tits sddm-helper[1789]: pam_kwallet5(sddm-autologin:session): pam_kwallet5: pam_sm_open_session
+Apr 03 15:28:26 Tits sddm-helper[1789]: pam_kwallet5(sddm-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Apr 03 15:28:26 Tits sddm-helper[1789]: Starting Wayland user session: "/etc/sddm/wayland-session" "/usr/libexec/plasma-dbus-run-session-if-needed /usr/bin/startplasma-wayland"
+-rw-r--r--. 1 chase chase 35558 Apr  3 15:28 /home/chase/.config/kwinoutputconfig.json
+                        "enabled": true,
+                        "outputIndex": 7,
+                        "position": {
+                            "x": 0,
+                            "y": 1080
+                        },
+                        "priority": 2,
+                        "replicationSource": ""
+                    }
+                ]
+            },
+            {
+                "lidClosed": false,
+                "outputs": [
+                    {
+                        "enabled": true,
+                        "outputIndex": 7,
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "priority": 0,
+                        "replicationSource": ""
+                    },
+                    {
+                        "enabled": true,
+                        "outputIndex": 1,
+                        "position": {
+                            "x": 2560,
+                            "y": 0
+                        },
+                        "priority": 1,
+                        "replicationSource": ""
+                    },
+                    {
+                        "enabled": true,
+                        "outputIndex": 5,
+                        "position": {
+                            "x": 4000,
+                            "y": 0
+                        },
+                        "priority": 2,
+                        "replicationSource": ""
+                    }
+                ]
+            }
+        ],
+        "name": "setups"
+    }
+]
+● plasma-powerdevil.service - Powerdevil
+     Loaded: loaded (/usr/lib/systemd/user/plasma-powerdevil.service; static)
+    Drop-In: /usr/lib/systemd/user/service.d
+             └─10-timeout-abort.conf
+     Active: active (running) since Fri 2026-04-03 15:28:37 EDT; 12min ago
+ Invocation: eff66e6a74d444cdbaa115ee040f679e
+   Main PID: 2493 (org_kde_powerde)
+      Tasks: 12 (limit: 38189)
+     Memory: 18.6M (peak: 20.5M)
+        CPU: 1.055s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/background.slice/plasma-powerdevil.service
+             └─2493 /usr/libexec/org_kde_powerdevil
+
+Apr 03 15:28:36 Tits org_kde_powerdevil[2493]: [  2493]                                          extra_stabilizati>
+Apr 03 15:28:36 Tits org_kde_powerdevil[2493]: [  2493] libddcutil recheck thread 0x555d36232f50 started
+Apr 03 15:28:36 Tits org_kde_powerdevil[2493]: [  2839] (dw_recheck_displays_func) Recheck interval: Sleeping for >
+Apr 03 15:28:36 Tits org_kde_powerdevil[2493]: [  2493] libddcutil watch thread 0x555d36233660 started
+Apr 03 15:28:37 Tits org_kde_powerdevil[2493]: org.kde.powerdevil.chargethresholdhelper.getthreshold failed "Charg>
+Apr 03 15:28:37 Tits org_kde_powerdevil[2493]: org.kde.powerdevil.backlighthelper.brightness failed
+Apr 03 15:28:37 Tits systemd[1840]: Started plasma-powerdevil.service - Powerdevil.
+Apr 03 15:28:37 Tits org_kde_powerdevil[2493]: org.kde.powerdevil.chargethresholdhelper.getthreshold failed "Charg>
+Apr 03 15:28:37 Tits org_kde_powerdevil[2493]: Failed to register with host portal QDBusError("org.freedesktop.por>
+Apr 03 15:28:37 Tits org_kde_powerdevil[2493]: Failed to register with host portal QDBusError("org.freedesktop.por>
+lines 1-23/23 (END)
