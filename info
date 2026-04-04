@@ -1,326 +1,292 @@
-chase@Tits:~$ cat > /tmp/monitor-detect.sh <<'SH'
+chase@Tits:~$ cat > ~/setup-monitor-split.sh <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== Host / Session ==="
-echo "User: $(whoami)"
-echo "Hostname: $(hostname)"
-echo "Shell: $SHELL"
-echo "XDG_SESSION_TYPE: ${XDG_SESSION_TYPE:-unknown}"
-echo "DISPLAY: ${DISPLAY:-<not set>}"
-echo "XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR:-<not set>}"
-echo
+USER_HOME="$HOME"
+BACKUP_DIR="$USER_HOME/.config/kwin-backup"
+mkdir -p "$BACKUP_DIR"
+KWINRC="$USER_HOME/.config/kwinrulesrc"
+KWINRC_BAK="$BACKUP_DIR/kwinrulesrc.bak.$(date +%s)"
+AUTOSTART_DIR="$USER_HOME/.config/autostart"
+SERVICE_DIR="$USER_HOME/.config/systemd/user"
+HELPER_SCRIPT="$USER_HOME/.local/bin/monitor-split-tmux.sh"
+TMUX_UNIT="$SERVICE_DIR/monitor-split-tmux.service"
+GUI_DESKTOP="$AUTOSTART_DIR/monitor-split.desktop"
+ALT_UNIT="$SERVICE_DIR/monitor-split-gui.service"
+DEBUG_FILE="$USER_HOME/Desktop/monitor-split-debug-$(date +%s).txt"
 
-echo "=== Desktop / Compositor Info ==="
-# KDE / KWin detection
-if command -v qdbus >/dev/null 2>&1; then
-  echo "qdbus present; trying to detect KWin..."
-  qdbus org.kde.KWin /KWin org.kde.KWin.supportsMultipleDesktops 2>/dev/null || true
+echo "Backing up kwinrulesrc if present..."
+if [ -f "$KWINRC" ]; then
+  cp -v "$KWINRC" "$KWINRC_BAK"
+  echo "Backup saved to $KWINRC_BAK"
 fi
-if command -v plasmashell >/dev/null 2>&1; then
-  echo "plasmashell: $(plasmashell --version 2>/dev/null || echo 'unknown')"
-fi
-echo
 
-echo "=== Monitor enumeration ==="
-if [ "${XDG_SESSION_TYPE:-}" = "x11" ] && command -v xrandr >/dev/null 2>&1; then
-  echo "-- xrandr --listmonitors --"
-  xrandr --listmonitors 2>/dev/null || xrandr --query 2>/dev/null
-elif command -v swaymsg >/dev/null 2>&1; then
-  echo "-- swaymsg get_outputs --"
-  swaymsg -t get_outputs
-elif command -v wlr-randr >/dev/null 2>&1; then
-  echo "-- wlr-randr --"
-  wlr-randr
-else
-  echo "No standard monitor tool found (xrandr/swaymsg/wlr-randr). Listing DRM connectors:"
-  ls -l /sys/class/drm/*/status 2>/dev/null || true
-fi
-echo
-
-echo "=== Window system / windows (best-effort) ==="
-if [ "${XDG_SESSION_TYPE:-}" = "x11" ] && command -v wmctrl >/dev/null 2>&1; then
-  echo "-- wmctrl -lx (class, title) --"
-  wmctrl -lx
-  echo
-  echo "-- Konsole windows (wmctrl grep konsole) --"
-  wmctrl -lx | grep -i konsole || true
-  echo
-  echo "-- For each konsole window: WM_CLASS and WM_NAME (xprop) --"
-  while read -r line; do
-    wid=$(awk '{print $1}' <<<"$line")
-    echo "Window ID: $wid"
-    xprop -id "$wid" WM_CLASS WM_NAME _NET_WM_PID 2>/dev/null || true
-    echo "----"
-  done < <(wmctrl -lx | grep -i konsole | awk '{print $1}')
-elif [ "${XDG_SESSION_TYPE:-}" = "wayland" ]; then
-  echo "Wayland session detected. X11 tools (wmctrl/xprop) are not available on Wayland."
-  echo "Attempting to list KDE windows via qdbus (KWin) if available..."
-  if command -v qdbus >/dev/null 2>&1; then
-    echo "-- qdbus org.kde.KWin /KWin org.kde.KWin.windows --"
-    qdbus org.kde.KWin /KWin org.kde.KWin.windows 2>/dev/null || true
-  else
-    echo "qdbus not available; cannot enumerate Wayland windows from here."
-  fi
-else
-  echo "Neither X11 nor Wayland detection succeeded or required tools missing."
-fi
-echo
-
-echo "=== Processes: konsole, tmux, nvtop, htop ==="
-ps -ef | egrep 'konsole|tmux|nvtop|htop' | egrep -v 'egrep|monitor-detect' || true
-echo
-
-echo "=== tmux config and title settings ==="
-echo "-- ~/.tmux.conf (first 200 lines if exists) --"
-if [ -f "${HOME}/.tmux.conf" ]; then
-  sed -n '1,200p' "${HOME}/.tmux.conf"
-else
-  echo "<no ~/.tmux.conf>"
-fi
-echo
-echo "-- tmux show-options -g (if tmux server running) --"
-if command -v tmux >/dev/null 2>&1; then
-  tmux show-options -g 2>/dev/null || true
-else
-  echo "tmux not installed or not in PATH"
-fi
-echo
-
-echo "=== Konsole launch line in your script ==="
-if [ -f "${HOME}/.local/bin/monitor-split.sh" ]; then
-  echo "-- head of script --"
-  sed -n '1,200p' "${HOME}/.local/bin/monitor-split.sh"
-else
-  echo "<no ~/.local/bin/monitor-split.sh>"
-fi
-echo
-
-echo "=== KWin rules file (kwinrulesrc) ==="
-if [ -f "${HOME}/.config/kwinrulesrc" ]; then
-  sed -n '1,240p' "${HOME}/.config/kwinrulesrc"
-else
-  echo "<no ~/.config/kwinrulesrc>"
-fi
-echo
-
-echo "=== Autostart .desktop and systemd unit ==="
-echo "-- ~/.config/autostart/monitor-split.desktop --"
-if [ -f "${HOME}/.config/autostart/monitor-split.desktop" ]; then
-  sed -n '1,200p' "${HOME}/.config/autostart/monitor-split.desktop"
-else
-  echo "<no ~/.config/autostart/monitor-split.desktop>"
-fi
-echo
-echo "-- systemd user unit status --"
-if command -v systemctl >/dev/null 2>&1; then
-  systemctl --user status monitor-split.service --no-pager || true
-  echo
-  echo "-- journalctl (last 200 lines) --"
-  journalctl --user -u monitor-split.service -n 200 --no-pager || true
-else
-  echo "systemctl not available"
-fi
-echo
-
-echo "=== Helpful hints summary ==="
-echo "1) If X11: monitor indices from xrandr listmonitors show index numbers (0..N)."
-echo "2) If Wayland: KWin controls placement; use Screen property in kwinrulesrc (index starts at 0)."
-echo "3) tmux can overwrite window title; check ~/.tmux.conf for set-titles settings."
-echo "4) If Konsole still overrides rules, ensure 'Ignore requested geometry' is forced in kwinrulesrc."
-echo
-echo "=== End of report ==="
-SH
-chmod +x /tmp/monitor-detect.sh
-echo "Script written to /tmp/monitor-detect.sh — running now..."
-/tmp/monitor-detect.sh
-Script written to /tmp/monitor-detect.sh — running now...
-=== Host / Session ===
-User: chase
-Hostname: Tits
-Shell: /bin/bash
-XDG_SESSION_TYPE: wayland
-DISPLAY: :0
-XDG_RUNTIME_DIR: /run/user/1000
-
-=== Desktop / Compositor Info ===
-plasmashell: plasmashell 6.6.3
-
-=== Monitor enumeration ===
-No standard monitor tool found (xrandr/swaymsg/wlr-randr). Listing DRM connectors:
--rw-r--r--. 1 root root 4096 Apr  4 11:26 /sys/class/drm/card1-DP-1/status
--rw-r--r--. 1 root root 4096 Apr  4 11:26 /sys/class/drm/card1-DP-2/status
--rw-r--r--. 1 root root 4096 Apr  4 11:26 /sys/class/drm/card1-DP-3/status
--rw-r--r--. 1 root root 4096 Apr  4 11:26 /sys/class/drm/card1-HDMI-A-1/status
-
-=== Window system / windows (best-effort) ===
-Wayland session detected. X11 tools (wmctrl/xprop) are not available on Wayland.
-Attempting to list KDE windows via qdbus (KWin) if available...
-qdbus not available; cannot enumerate Wayland windows from here.
-
-=== Processes: konsole, tmux, nvtop, htop ===
-egrep: warning: egrep is obsolescent; using grep -E
-egrep: warning: egrep is obsolescent; using grep -E
-chase     667060    1825  0 10:35 ?        00:00:01 tmux new-session -d -s sys htop ; split-window -h -t sys nvtop ; select-pane -t 0 ; attach -t sys
-chase     667061  667060  5 10:35 pts/4    00:02:35 htop
-chase     667063  667060  0 10:35 pts/5    00:00:23 nvtop
-root      668262    1825  0 10:36 ?        00:00:01 tmux new-session -d -s sys htop
-root      668263  668262  5 10:36 pts/8    00:02:46 htop
-root      668266  668262  0 10:36 pts/9    00:00:23 nvtop
-chase     698514    1825  0 11:11 ?        00:00:01 /usr/bin/konsole
-chase     710987  710977  0 11:26 pts/2    00:00:00 grep -E konsole|tmux|nvtop|htop
-
-=== tmux config and title settings ===
--- ~/.tmux.conf (first 200 lines if exists) --
-# ~/.tmux.conf — small usability tweaks
-set -g mouse on
-setw -g mode-keys vi
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-bind -n C-Left select-pane -L
-bind -n C-Right select-pane -R
-bind -n C-Up select-pane -U
-bind -n C-Down select-pane -D
-
--- tmux show-options -g (if tmux server running) --
-activity-action other
-assume-paste-time 1
-base-index 0
-bell-action any
-default-command ''
-default-shell /bin/bash
-default-size 80x24
-destroy-unattached off
-detach-on-destroy on
-display-panes-active-colour red
-display-panes-colour blue
-display-panes-time 1000
-display-time 750
-history-limit 2000
-key-table root
-lock-after-time 0
-lock-command "lock -np"
-message-command-style bg=black,fg=yellow
-message-line 0
-message-style bg=yellow,fg=black
-mouse on
-prefix C-b
-prefix2 None
-renumber-windows off
-repeat-time 500
-set-titles off
-set-titles-string "#S:#I:#W - \"#T\" #{session_alerts}"
-silence-action other
-status on
-status-bg default
-status-fg default
-status-format[0] "#[align=left range=left #{E:status-left-style}]#[push-default]#{T;=/#{status-left-length}:status-left}#[pop-default]#[norange default]#[list=on align=#{status-justify}]#[list=left-marker]<#[list=right-marker]>#[list=on]#{W:#[range=window|#{window_index} #{E:window-status-style}#{?#{&&:#{window_last_flag},#{!=:#{E:window-status-last-style},default}}, #{E:window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{E:window-status-bell-style},default}}, #{E:window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{E:window-status-activity-style},default}}, #{E:window-status-activity-style},}}]#[push-default]#{T:window-status-format}#[pop-default]#[norange default]#{?window_end_flag,,#{window-status-separator}},#[range=window|#{window_index} list=focus #{?#{!=:#{E:window-status-current-style},default},#{E:window-status-current-style},#{E:window-status-style}}#{?#{&&:#{window_last_flag},#{!=:#{E:window-status-last-style},default}}, #{E:window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{E:window-status-bell-style},default}}, #{E:window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{E:window-status-activity-style},default}}, #{E:window-status-activity-style},}}]#[push-default]#{T:window-status-current-format}#[pop-default]#[norange list=on default]#{?window_end_flag,,#{window-status-separator}}}#[nolist align=right range=right #{E:status-right-style}]#[push-default]#{T;=/#{status-right-length}:status-right}#[pop-default]#[norange default]"
-status-format[1] "#[align=centre]#{P:#{?pane_active,#[reverse],}#{pane_index}[#{pane_width}x#{pane_height}]#[default] }"
-status-interval 15
-status-justify left
-status-keys emacs
-status-left "[#{session_name}] "
-status-left-length 10
-status-left-style default
-status-position bottom
-status-right "#{?window_bigger,[#{window_offset_x}#,#{window_offset_y}] ,}\"#{=21:pane_title}\" %H:%M %d-%b-%y"
-status-right-length 40
-status-right-style default
-status-style bg=green,fg=black
-update-environment[0] DISPLAY
-update-environment[1] KRB5CCNAME
-update-environment[2] SSH_ASKPASS
-update-environment[3] SSH_AUTH_SOCK
-update-environment[4] SSH_AGENT_PID
-update-environment[5] SSH_CONNECTION
-update-environment[6] WINDOWID
-update-environment[7] XAUTHORITY
-visual-activity off
-visual-bell off
-visual-silence off
-word-separators "!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~"
-
-=== Konsole launch line in your script ===
--- head of script --
-sleep 6
+echo "Step 1: create a systemd oneshot that ensures tmux session exists..."
+mkdir -p "$SERVICE_DIR"
+mkdir -p "$USER_HOME/.local/bin"
+cat > "$HELPER_SCRIPT" <<'EOF'
 #!/usr/bin/env bash
-# monitor-split.sh — open a tmux session "sys" with htop (left) and nvtop (right)
 SESSION="sys"
-
-# Create session and panes if missing
 if ! command -v tmux >/dev/null 2>&1; then
-  echo "tmux not installed; please install tmux" >&2
+  echo "tmux not found" >&2
   exit 1
 fi
-
 if ! tmux has-session -t "$SESSION" 2>/dev/null; then
   tmux new-session -d -s "$SESSION" 'htop'
   tmux split-window -h -t "$SESSION" 'nvtop'
   tmux select-pane -t 0
 fi
+EOF
+chmod +x "$HELPER_SCRIPT"
 
-# Attach in Konsole
-if command -v konsole >/dev/null 2>&1; then
-  konsole --noclose --title "MonitorSplit" -e tmux attach -t "$SESSION" &
-else
-  tmux attach -t "$SESSION"
-fi
+cat > "$TMUX_UNIT" <<EOF
+[Unit]
+Description=MonitorSplit tmux session (htop + nvtop)
+After=default.target
 
-=== KWin rules file (kwinrulesrc) ===
-[General]
-count=1
-rules=eb58ca50-45c3-4608-a2e5-dcf969e02a25
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=$HELPER_SCRIPT
+TimeoutStartSec=30
 
-[eb58ca50-45c3-4608-a2e5-dcf969e02a25]
+[Install]
+WantedBy=default.target
+EOF
+
+echo "Step 2: create autostart .desktop to open Konsole with title MonitorSplit..."
+mkdir -p "$AUTOSTART_DIR"
+cat > "$GUI_DESKTOP" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Monitor Split Console
+Exec=konsole --noclose --title "MonitorSplit" -e tmux attach -t sys
+Icon=utilities-terminal
+Terminal=false
+X-GNOME-Autostart-enabled=true
+EOF
+
+echo "Step 3: write a clean MonitorSplit kwin rule block (strict match on title substring)..."
+cat > /tmp/kwinrules_monitor_split.clean <<'EOF'
+[MonitorSplit-Rule]
 Description=MonitorSplit
-adaptivesyncrule=2
-closeablerule=2
+wmclass=konsole
+wmclassmatch=1
+title=MonitorSplit
+titlematch=3
+ignoregeometry=true
 ignoregeometryrule=2
+noborder=true
+noborderrule=2
+closeable=false
+closeablerule=2
 maximizehoriz=true
 maximizehorizrule=2
 maximizevert=true
 maximizevertrule=2
-noborder=true
-noborderrule=2
-placement=9
-placementrule=2
-title=tmux:client
-titlematch=3
-wmclass=konsole
-wmclassmatch=1
+screen=3
+screenrule=2
+EOF
 
-=== Autostart .desktop and systemd unit ===
--- ~/.config/autostart/monitor-split.desktop --
-<no ~/.config/autostart/monitor-split.desktop>
+# Remove any existing MonitorSplit-Rule block and append the clean one
+if [ -f "$KWINRC" ]; then
+  awk 'BEGIN{RS="\\n\\n"; ORS="\\n\\n"} !/
 
--- systemd user unit status --
-○ monitor-split.service - Monitor Split (htop + nvtop) tmux session
-     Loaded: loaded (/home/chase/.config/systemd/user/monitor-split.service; enabled; preset: disabled)
+\[MonitorSplit-Rule\]
+
+/ {print}' "$KWINRC" > /tmp/kwinrulesrc.without_ms || true
+  cat /tmp/kwinrulesrc.without_ms /tmp/kwinrules_monitor_split.clean > /tmp/kwinrulesrc.new || cp /tmp/kwinrules_monitor_split.clean /tmp/kwinrulesrc.new
+else
+  cp /tmp/kwinrules_monitor_split.clean /tmp/kwinrulesrc.new
+fi
+mv -v /tmp/kwinrulesrc.new "$KWINRC"
+
+echo "Step 4: enable and start the tmux unit"
+systemctl --user daemon-reload
+systemctl --user enable --now monitor-split-tmux.service || true
+systemctl --user status monitor-split-tmux.service --no-pager || true
+
+echo "Attempting to reconfigure KWin rules (if qdbus available)..."
+if command -v qdbus >/dev/null 2>&1; then
+  qdbus org.kde.KWin /KWin reconfigure || true
+else
+  echo "qdbus not installed; you may need to log out and back in for KWin to pick up the new rule."
+fi
+
+echo "Step 5: launch Konsole with MonitorSplit title to test"
+konsole --noclose --title "MonitorSplit" -e tmux attach -t sys & sleep 2
+
+echo
+echo "Checking tmux session and processes..."
+tmux ls 2>/dev/null || echo "tmux session not found"
+ps -ef | egrep 'tmux|nvtop|htop|konsole' | egrep -v 'egrep' || true
+
+echo
+read -p "Visually inspect the MonitorSplit window. Is it borderless, maximized, on monitor 4, and without a close button? (y/n) " ans
+if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
+  echo "Great — primary approach succeeded."
+  exit 0
+fi
+
+echo "Primary approach did not produce the desired result. Trying alternative approach: systemd will launch Konsole after a delay."
+
+cat > "$ALT_UNIT" <<EOF
+[Unit]
+Description=MonitorSplit GUI launcher (Konsole)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sleep 8
+ExecStart=/usr/bin/konsole --noclose --title "MonitorSplit" -e tmux attach -t sys
+Restart=on-failure
+Environment=XDG_RUNTIME_DIR=%t
+Environment=WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0}
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now monitor-split-gui.service || true
+systemctl --user status monitor-split-gui.service --no-pager || true
+
+echo "Waiting 6 seconds for Konsole to appear..."
+sleep 6
+
+read -p "After the alternative approach, is the MonitorSplit window correct now? (y/n) " ans2
+if [ "$ans2" = "y" ] || [ "$ans2" = "Y" ]; then
+  echo "Alternative approach succeeded."
+  exit 0
+fi
+
+echo "Both approaches failed. Collecting debug information to $DEBUG_FILE ..."
+
+{
+  echo "=== date ==="
+  date
+  echo
+  echo "=== systemd user units status ==="
+  systemctl --user status monitor-split-tmux.service --no-pager || true
+  systemctl --user status monitor-split-gui.service --no-pager || true
+  echo
+  echo "=== journal for units ==="
+  journalctl --user -u monitor-split-tmux.service -n 200 --no-pager || true
+  journalctl --user -u monitor-split-gui.service -n 200 --no-pager || true
+  echo
+  echo "=== tmux sessions and panes ==="
+  ps -eo user,pid,cmd | egrep 'tmux|konsole|nvtop|htop' | egrep -v 'egrep' || true
+  tmux ls 2>/dev/null || true
+  if tmux has-session -t sys 2>/dev/null; then
+    tmux list-windows -t sys -F '#I:#W #{window_active} #{window_layout}' || true
+    tmux list-panes -a -t sys -F '#S:#I.#P #{pane_index} #{pane_active} #{pane_current_command} #{pane_start_command}' || true
+  fi
+  echo
+  echo "=== kwinrulesrc snippet ==="
+  sed -n '/
+
+\[MonitorSplit-Rule\]
+
+/,/
+
+\[/{p}' "$KWINRC" || true
+  echo
+  echo "=== environment variables relevant ==="
+  echo "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"
+  echo "WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-<not set>}"
+  echo "DISPLAY=${DISPLAY:-<not set>}"
+  echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-<not set>}"
+  echo
+  echo "=== device nodes and groups ==="
+  ls -l /dev/dri/* 2>/dev/null || true
+  ls -l /dev/nvidia* 2>/dev/null || true
+  id $(whoami) || true
+} > "$DEBUG_FILE"
+
+echo "Debug file written to $DEBUG_FILE"
+echo "Please upload that file to your GitHub repo or paste it here and I will inspect it."
+echo "If you want me to revert everything now, run: bash ~/revert-monitor-split.sh"
+exit 1
+SH
+
+chmod +x ~/setup-monitor-split.sh
+echo "Setup and test script written to ~/setup-monitor-split.sh"
+echo "Run it with: bash ~/setup-monitor-split.sh"
+Setup and test script written to ~/setup-monitor-split.sh
+Run it with: bash ~/setup-monitor-split.sh
+chase@Tits:~$ bash ~/setup-monitor-split.sh
+Backing up kwinrulesrc if present...
+'/home/chase/.config/kwinrulesrc' -> '/home/chase/.config/kwin-backup/kwinrulesrc.bak.1775318073'
+Backup saved to /home/chase/.config/kwin-backup/kwinrulesrc.bak.1775318073
+Step 1: create a systemd oneshot that ensures tmux session exists...
+Step 2: create autostart .desktop to open Konsole with title MonitorSplit...
+Step 3: write a clean MonitorSplit kwin rule block (strict match on title substring)...
+awk: cmd. line:1: BEGIN{RS="\\n\\n"; ORS="\\n\\n"} !/
+awk: cmd. line:1:                                    ^ unexpected newline or end of string
+copied '/tmp/kwinrulesrc.new' -> '/home/chase/.config/kwinrulesrc'
+removed '/tmp/kwinrulesrc.new'
+Step 4: enable and start the tmux unit
+Created symlink '/home/chase/.config/systemd/user/default.target.wants/monitor-split-tmux.service' → '/home/chase/.config/systemd/user/monitor-split-tmux.service'.
+● monitor-split-tmux.service - MonitorSplit tmux session (htop + nvtop)
+     Loaded: loaded (/home/chase/.config/systemd/user/monitor-split-tmux.service; enabled; preset: disabled)
     Drop-In: /usr/lib/systemd/user/service.d
              └─10-timeout-abort.conf
-     Active: inactive (dead) since Sat 2026-04-04 11:06:22 EDT; 20min ago
-   Duration: 6.115s
- Invocation: 59f8b59956bc4ab5821997455ff5010d
-    Process: 694246 ExecStartPre=/bin/sleep 6 (code=exited, status=0/SUCCESS)
-    Process: 694321 ExecStart=/bin/bash -lc /home/chase/.local/bin/monitor-split.sh (code=exited, status=0/SUCCESS)
-   Main PID: 694321 (code=exited, status=0/SUCCESS)
-   Mem peak: 5.8M
-        CPU: 41ms
+     Active: active (exited) since Sat 2026-04-04 11:54:34 EDT; 8ms ago
+ Invocation: 7b409b1a749b47cab6925e3fd850f87b
+    Process: 9211 ExecStart=/home/chase/.local/bin/monitor-split-tmux.sh (code=exited, status=0/SUCCESS)
+   Main PID: 9211 (code=exited, status=0/SUCCESS)
+      Tasks: 1 (limit: 38188)
+     Memory: 21.7M (peak: 22.9M)
+        CPU: 46ms
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/monitor-split-tmux.service
+             └─9215 tmux new-session -d -s sys htop
 
-Apr 04 11:06:10 Tits systemd[1825]: Starting monitor-split.service - Monitor Split (htop + nvtop) tmux session...
-Apr 04 11:06:16 Tits systemd[1825]: Started monitor-split.service - Monitor Split (htop + nvtop) tmux session.
+Apr 04 11:54:34 Tits systemd[1807]: Starting monitor-split-tmux.service - MonitorSplit tmux session (htop + nvtop)...
+Apr 04 11:54:34 Tits systemd[1807]: Finished monitor-split-tmux.service - MonitorSplit tmux session (htop + nvtop).
+Attempting to reconfigure KWin rules (if qdbus available)...
 
--- journalctl (last 200 lines) --
+Step 5: launch Konsole with MonitorSplit title to test
+
+Checking tmux session and processes...
+sys: 1 windows (created Sat Apr  4 11:54:34 2026) (attached)
+egrep: warning: egrep is obsolescent; using grep -E
+egrep: warning: egrep is obsolescent; using grep -E
+chase       3253    1807  1 11:53 ?        00:00:00 /usr/bin/konsole
+chase       9215    1807  0 11:54 ?        00:00:00 tmux new-session -d -s sys htop
+chase       9216    9215 14 11:54 pts/2    00:00:00 htop
+chase       9219    9215  1 11:54 pts/3    00:00:00 nvtop
+chase       9226    9157 12 11:54 pts/1    00:00:00 konsole --noclose --title MonitorSplit -e tmux attach -t sys
+chase       9235    9226  0 11:54 pts/4    00:00:00 /usr/bin/tmux attach -t sys
+chase       9273    9157  0 11:54 pts/1    00:00:00 grep -E tmux|nvtop|htop|konsole
+
+Visually inspect the MonitorSplit window. Is it borderless, maximized, on monitor 4, and without a close button? (y/n) n
+Primary approach did not produce the desired result. Trying alternative approach: systemd will launch Konsole after a delay.
+Created symlink '/home/chase/.config/systemd/user/default.target.wants/monitor-split-gui.service' → '/home/chase/.config/systemd/user/monitor-split-gui.service'.
+● monitor-split-gui.service - MonitorSplit GUI launcher (Konsole)
+     Loaded: loaded (/home/chase/.config/systemd/user/monitor-split-gui.service; enabled; preset: disabled)
+    Drop-In: /usr/lib/systemd/user/service.d
+             └─10-timeout-abort.conf
+     Active: active (running) since Sat 2026-04-04 11:54:50 EDT; 8ms ago
+ Invocation: bb3ca59173dc4f31a0e81968b1d24465
+    Process: 9395 ExecStartPre=/bin/sleep 8 (code=exited, status=0/SUCCESS)
+   Main PID: 9602 ((konsole))
+      Tasks: 1 (limit: 38188)
+     Memory: 1.3M (peak: 1.3M)
+        CPU: 6ms
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/monitor-split-gui.service
+             └─9602 "(konsole)"
+
+Apr 04 11:54:42 Tits systemd[1807]: Starting monitor-split-gui.service - MonitorSplit GUI launcher (Konsole)...
+Apr 04 11:54:50 Tits systemd[1807]: Started monitor-split-gui.service - MonitorSplit GUI launcher (Konsole).
+Waiting 6 seconds for Konsole to appear...
+After the alternative approach, is the MonitorSplit window correct now? (y/n) n
+Both approaches failed. Collecting debug information to /home/chase/Desktop/monitor-split-debug-1775318073.txt ...
 No journal files were found.
--- No entries --
-
-=== Helpful hints summary ===
-1) If X11: monitor indices from xrandr listmonitors show index numbers (0..N).
-2) If Wayland: KWin controls placement; use Screen property in kwinrulesrc (index starts at 0).
-3) tmux can overwrite window title; check ~/.tmux.conf for set-titles settings.
-4) If Konsole still overrides rules, ensure 'Ignore requested geometry' is forced in kwinrulesrc.
-
-=== End of report ===
+No journal files were found.
+egrep: warning: egrep is obsolescent; using grep -E
+egrep: warning: egrep is obsolescent; using grep -E
+sed: -e expression #1, char 1: unterminated address regex
+Debug file written to /home/chase/Desktop/monitor-split-debug-1775318073.txt
+Please upload that file to your GitHub repo or paste it here and I will inspect it.
+If you want me to revert everything now, run: bash ~/revert-monitor-split.sh
 chase@Tits:~$ 
